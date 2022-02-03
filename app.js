@@ -62,10 +62,23 @@ app.get('/reset-password/:id/:token', (req, res, next) => {
 
 app.post('/reset-password/:id/:token', (req, res, next) => {
   const { id, token } = req.params;
+  const { password, password2 } = req.body;
   
   if (id !== user.id) {
     res.send('Invalid id');
     return;
+  }
+
+  const secret = JWT_SECRET + user.password;
+  try {
+    const payload = jwt.verify(token, secret)
+    // validate password and password2 should match
+    // have to hash the password before sending to the database
+    user.password = password;
+    res.send(user);
+  } catch (error) {
+    console.log(error.message);
+    res.send(error.message)
   }
 });
 
